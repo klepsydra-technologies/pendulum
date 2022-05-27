@@ -14,13 +14,19 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(pendulum_controller REQUIRED)
 find_package(pendulum_driver REQUIRED)
+find_package(kpsr_ros2_executor REQUIRED)
 
 set(PENDULUM_DEMO_EXE pendulum_demo)
+
+link_directories(/home/pablogh/development/klepsydra/professional/install/lib)
 
 add_executable(${PENDULUM_DEMO_EXE} "src/pendulum_demo.cpp")
 target_link_libraries(${PENDULUM_DEMO_EXE}
     pendulum_controller::pendulum_controller
-    pendulum_driver::pendulum_driver)
+    pendulum_driver::pendulum_driver
+    )
+
+target_link_directories(${PENDULUM_DEMO_EXE} PRIVATE /home/pablogh/development/klepsydra/professional/install/lib/)
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)

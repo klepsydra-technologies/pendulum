@@ -22,6 +22,9 @@ find_package(sensor_msgs REQUIRED)
 find_package(pendulum2_msgs REQUIRED)
 find_package(pendulum_utils REQUIRED)
 find_package(rcpputils REQUIRED)
+find_package(kpsr_ros2_executor REQUIRED)
+
+set(CMAKE_THREAD_LIBS_INIT "-lpthread")
 
 set(dependencies
     rclcpp
@@ -29,8 +32,11 @@ set(dependencies
     rclcpp_lifecycle
     lifecycle_msgs
     sensor_msgs
+    kpsr_ros2_executor
     pendulum2_msgs
     pendulum_utils)
+
+link_directories(/home/pablogh/development/klepsydra/professional/install/lib)
 
 set(PENDULUM_DRIVER_LIB pendulum_driver)
 add_library(${PENDULUM_DRIVER_LIB} SHARED
@@ -43,6 +49,10 @@ target_include_directories(${PENDULUM_DRIVER_LIB}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
+target_link_libraries(${PROJECT_NAME}
+  yaml-cpp
+)
+
 ament_target_dependencies(${PENDULUM_DRIVER_LIB} ${dependencies})
 
 rclcpp_components_register_nodes(${PENDULUM_DRIVER_LIB} "pendulum::Driver")
@@ -50,7 +60,10 @@ rclcpp_components_register_nodes(${PENDULUM_DRIVER_LIB} "pendulum::Driver")
 # Generate standalone node executable
 set(PENDULUM_DRIVER_EXE "${PENDULUM_DRIVER_LIB}_exe")
 add_executable(${PENDULUM_DRIVER_EXE} src/pendulum_driver_node_main.cpp)
-target_link_libraries(${PENDULUM_DRIVER_EXE} ${PENDULUM_DRIVER_LIB})
+
+target_link_libraries(${PENDULUM_DRIVER_EXE}
+  ${PENDULUM_DRIVER_LIB}
+  )
 
 ament_export_targets(export_${PENDULUM_DRIVER_LIB} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${dependencies})

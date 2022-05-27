@@ -21,6 +21,9 @@ find_package(lifecycle_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(pendulum2_msgs REQUIRED)
 find_package(pendulum_utils REQUIRED)
+find_package(kpsr_ros2_executor REQUIRED)
+
+set(CMAKE_THREAD_LIBS_INIT "-lpthread")
 
 set(dependencies
     rclcpp
@@ -28,8 +31,11 @@ set(dependencies
     rclcpp_lifecycle
     lifecycle_msgs
     sensor_msgs
+    kpsr_ros2_executor
     pendulum2_msgs
     pendulum_utils)
+
+link_directories(/home/pablogh/development/klepsydra/professional/install/lib)
 
 set(PENDULUM_CONTROLLER_LIB pendulum_controller)
 add_library(${PENDULUM_CONTROLLER_LIB} SHARED
@@ -41,6 +47,13 @@ target_include_directories(${PENDULUM_CONTROLLER_LIB}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
+target_link_libraries(${PENDULUM_CONTROLLER_LIB}
+  yaml-cpp
+  ${KLEPSYDRA_CORE_LIBRARIES}
+  ${KPSR_ADMIN_CORE_LIBRARIES}
+  ${KPSR_ADMIN_SOCKET_LIBRARIES}
+)
+
 ament_target_dependencies(${PENDULUM_CONTROLLER_LIB} ${dependencies})
 
 rclcpp_components_register_nodes(${PENDULUM_CONTROLLER_LIB} "pendulum::Controller")
@@ -48,7 +61,12 @@ rclcpp_components_register_nodes(${PENDULUM_CONTROLLER_LIB} "pendulum::Controlle
 # Generate standalone node executable
 set(PENDULUM_CONTROLLER_EXE "${PENDULUM_CONTROLLER_LIB}_exe")
 add_executable(${PENDULUM_CONTROLLER_EXE} src/pendulum_controller_node_main.cpp)
-target_link_libraries(${PENDULUM_CONTROLLER_EXE} ${PENDULUM_CONTROLLER_LIB})
+target_link_libraries(${PENDULUM_CONTROLLER_EXE}
+  ${PENDULUM_CONTROLLER_LIB}
+  ${KLEPSYDRA_CORE_LIBRARIES}
+  ${KPSR_ADMIN_CORE_LIBRARIES}
+  ${KPSR_ADMIN_SOCKET_LIBRARIES}
+  )
 
 ament_export_targets(export_${PENDULUM_CONTROLLER_LIB} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${dependencies})

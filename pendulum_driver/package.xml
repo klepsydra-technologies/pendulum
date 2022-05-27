@@ -16,6 +16,7 @@
   <depend>lifecycle_msgs</depend>
   <depend>pendulum_utils</depend>
   <depend>rcpputils</depend>
+  <depend>kpsr_ros2_executor</depend>
 
   <test_depend>apex_test_tools</test_depend>
   <test_depend>ament_cmake_gtest</test_depend>
